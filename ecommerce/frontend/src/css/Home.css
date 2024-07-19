@@ -1,0 +1,28 @@
+.jumbotron {
+    background-color: #e9ecef;
+    padding: 2rem 1rem;
+    border-radius: 0.3rem;
+    margin-top: 1rem;
+}
+
+.jumbotron h1 {
+    font-size: 3rem;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.banner {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.3rem;
+}
+
+.info {
+    text-align: center;
+    margin-left: 2rem;
+}

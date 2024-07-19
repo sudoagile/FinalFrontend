@@ -1,82 +1,71 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, FormEvent } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'jquery/dist/jquery.min.js';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+    const [credentials, setCredentials] = useState({ username: '', password: '' });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCredentials({ ...credentials, [name]: value });
+    };
+
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        // Aquí puedes hacer una llamada a la API para autenticar al usuario
-        // Ejemplo:
-        fetch('/login', {
+        fetch('/api/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: email, password: password })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
         })
-            .then(response => {
-                if (response.ok) {
-                    navigate('/home');
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
                 } else {
-                    console.error('Error al autenticar');
+                    alert('Login failed');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch((error) => console.error('Error:', error));
     };
 
     return (
-        <div className="container">
-            <div className="card mb-3">
-                <div className="row no-gutters">
-                    <div className="col-md-4"></div>
-                    <div className="col-md-8">
-                        <div className="card-body">
-                            <h2>Ingresar</h2>
-                        </div>
+        <div>
+            <Header />
+            <div className="container">
+                <h1 className="mt-4 mb-3">Login</h1>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="username">Username:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="username"
+                            name="username"
+                            value={credentials.username}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
-                </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password:</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="password"
+                            name="password"
+                            value={credentials.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary">Login</button>
+                </form>
             </div>
-
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">Email:</label>
-                    <input
-                        type="email"
-                        className="form-control"
-                        id="username"
-                        name="username"
-                        placeholder="Ingrese su email"
-                        required
-                        autoComplete="off"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="password">Contraseña:</label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        name="password"
-                        placeholder="Ingrese su contraseña"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <div className="col-sm-2">
-                        <button type="submit" className="btn btn-dark">
-                            Ingresar
-                        </button>
-                    </div>
-                </div>
-            </form>
-            <a href="/register" className="card-link">Si aún no tiene cuenta, aquí puede registrarse</a>
+            <Footer />
         </div>
     );
 };
