@@ -1,0 +1,10 @@
+.logo {
+    height: 70px;  /* Ajusta este valor para hacer el logo más grande */
+    width: 70px;   /* Ajusta este valor para hacer el logo más grande */
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}

@@ -6,7 +6,7 @@ const ProductDetail: React.FC = () => {
 
     return (
         <div>
-            <h1>Product Detail Page</h1>
+            <h1>Product Detail</h1>
             <p>Product ID: {id}</p>
         </div>
     );
