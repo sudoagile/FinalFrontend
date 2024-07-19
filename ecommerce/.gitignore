@@ -33,3 +33,6 @@ build/
 .vscode/
 
 target-MacBook Air de Eduardo*
+
+/frontend/node_modules/
+

@@ -1,22 +1,16 @@
 package com.codigo.ecommerce.infrastructure.controller;
 
 import com.codigo.ecommerce.application.service.RegistrationService;
-import com.codigo.ecommerce.domain.User;
-import com.codigo.ecommerce.domain.UserType;
 import com.codigo.ecommerce.infrastructure.dto.UserDto;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/register")
 @Slf4j
 public class RegistrationController {
@@ -27,25 +21,12 @@ public class RegistrationController {
         this.registrationService = registrationService;
     }
 
-    @GetMapping
-    public String register(UserDto userDto){
-        return "register";
-    }
     @PostMapping
-    public String registerUser(@Valid UserDto userDto, BindingResult bindingResult, RedirectAttributes redirectAttributes){
-//        user.setDateCreated(LocalDateTime.now());
-//        user.setUserType(UserType.USER);
-//        user.setUsername(user.getEmail());
-
-        if(bindingResult.hasErrors()){
-            bindingResult.getAllErrors().forEach(
-                    e->{ log.info( "Error {}", e.getDefaultMessage() ); }
-            );
-            return "register";
-        }
+    public ResponseEntity<Map<String, String>> registerUser(@Valid @RequestBody UserDto userDto) {
         registrationService.register(userDto.userDtoToUser());
-        redirectAttributes.addFlashAttribute("success", "Usuario creado correctamente");
-        return "redirect:/register";
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        return ResponseEntity.ok(response);
     }
-
 }
+

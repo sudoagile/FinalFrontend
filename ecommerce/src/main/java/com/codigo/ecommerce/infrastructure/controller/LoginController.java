@@ -2,16 +2,17 @@ package com.codigo.ecommerce.infrastructure.controller;
 
 import com.codigo.ecommerce.application.service.LoginService;
 import com.codigo.ecommerce.domain.User;
-import com.codigo.ecommerce.infrastructure.dto.UserDto;
+import com.codigo.ecommerce.infrastructure.dto.UserCredentials;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
 @RequestMapping("/login")
 @Slf4j
 public class LoginController {
@@ -21,27 +22,38 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @GetMapping
-    public String login(){
-        return "login";
+    @PostMapping
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserCredentials credentials, HttpSession session) {
+        User user = loginService.getuser(credentials.getUsername());
+        Map<String, String> response = new HashMap<>();
+        if (user != null && user.getPassword().equals(credentials.getPassword())) {
+            session.setAttribute("iduser", user.getId());
+            response.put("message", "Login successful");
+            response.put("userType", loginService.getUserType(user.getEmail()).name());
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("message", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
     }
 
     @GetMapping("/access")
-    public String access(RedirectAttributes attributes, HttpSession httpSession){
-        if (httpSession.getAttribute("iduser") != null) {
-            int userId = Integer.parseInt(httpSession.getAttribute("iduser").toString());
+    public ResponseEntity<Map<String, String>> access(HttpSession session) {
+        Map<String, String> response = new HashMap<>();
+        if (session.getAttribute("iduser") != null) {
+            int userId = Integer.parseInt(session.getAttribute("iduser").toString());
             User user = loginService.getUser(userId);
-            attributes.addFlashAttribute("id", httpSession.getAttribute("iduser").toString());
+            response.put("id", session.getAttribute("iduser").toString());
             if (loginService.existUser(user.getEmail())) {
                 if (loginService.getUserType(user.getEmail()).name().equals("ADMIN")) {
-                    return "redirect:/admin";
+                    response.put("redirect", "/admin");
                 } else {
-                    return "redirect:/home";
+                    response.put("redirect", "/home");
                 }
+                return ResponseEntity.ok(response);
             }
         }
-        return "redirect:/home";
+        response.put("redirect", "/home");
+        return ResponseEntity.ok(response);
     }
-
-
 }
